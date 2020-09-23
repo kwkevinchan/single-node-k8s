@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: insidethearts-cms-deployment
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: php
+
+  template:
+    metadata:
+      name: insidethearts-cms-pod
+      labels:
+        app: php
+    spec:
+      volumes:
+        - name: insidethearts-cms-data
+          hostPath:
+            path: /Users/mac/Git/insidethearts/
+            type: Directory
+
+      containers:
+      - name: insidethearts-cms
+        image: php/cms:7.2
+        ports:
+          - name: ist-cms-port
+            containerPort: 80
+        env:
+          - name: UPID
+            value: "501"
+
+        volumeMounts:
+          - mountPath: /var/www/app/
+            name: insidethearts-cms-data
+
+        imagePullPolicy: Never
+
+        resources:
+          requests:
+            memory: "200Mi"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+
+      - name: insidethearts-cms-npm
+        image: php/npm:1.0
+
+        volumeMounts:
+          - mountPath: /var/www/app/
+            name: insidethearts-cms-data
+        
+        imagePullPolicy: Never
+        
+        resources:
+          requests:
+            memory: "200Mi"
+          limits:
+            memory: "1Gi"
+            cpu: "2000m"

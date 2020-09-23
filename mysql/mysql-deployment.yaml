@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql-deployment
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: mysql
+
+  template:
+    metadata:
+      name: mysql-pod
+      labels:
+        app: mysql
+    spec:
+      volumes:
+        - name: mysql-data
+          hostPath:
+            path: /tmp/mysql/
+            type: Directory
+
+      containers:
+      - name: mysql
+        image: mysql:5.6
+        ports:
+          - name: mysql-port
+            containerPort: 3306
+        env:
+          - name: MYSQL_ROOT_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: db-password
+                key: MYSQL_ROOT_PASSWORD
+        volumeMounts:
+          - mountPath: /var/lib/mysql/
+            name: mysql-data
+
+        resources:
+          requests:
+            memory: "1Gi"
+          limits:
+            memory: "1Gi"
+            cpu: "2000m"
